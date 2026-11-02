@@ -1,5 +1,4 @@
-# src/generate_data.py 
-import pandas as pd
+# src/generate_data.py
 from sklearn.datasets import load_iris
 
 iris = load_iris(as_frame=True)

@@ -4,3 +4,6 @@ numpy
 joblib
 dvc
 pyyaml
+flake8
+pytest
+pytest-cov

@@ -27,8 +27,10 @@ RANGE_CHECKS = {
     "petal width (cm)": (0.05, 3.0),
 }
 
+
 class DataValidationError(Exception):
     pass
+
 
 def validate(input_path: str) -> pd.DataFrame:
     # 1. Initialize the errors list first
@@ -64,7 +66,10 @@ def validate(input_path: str) -> pd.DataFrame:
         if col in df.columns:
             out_of_range = df[(df[col] < low) | (df[col] > high)]
             if not out_of_range.empty:
-                errors.append(f"{len(out_of_range)} rows out of expected range for '{col}' ({low}-{high})")
+                errors.append(
+                    f"{len(out_of_range)} rows out of expected range for '{col}' "
+                    f"({low}-{high})"
+                )
 
     # 7. Raise error if anything failed
     if errors:
@@ -75,8 +80,13 @@ def validate(input_path: str) -> pd.DataFrame:
             + "; ".join(errors)
         )
 
-    logger.info("Validation PASSED: %d rows, %d columns, all checks satisfied", len(df), df.shape[1])
+    logger.info(
+        "Validation PASSED: %d rows, %d columns, all checks satisfied",
+        len(df),
+        df.shape[1],
+    )
     return df
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

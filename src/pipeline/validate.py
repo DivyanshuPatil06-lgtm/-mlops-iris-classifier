@@ -70,7 +70,10 @@ def validate(input_path: str) -> pd.DataFrame:
     if errors:
         for e in errors:
             logger.error(e)
-        raise DataValidationError(f"Validation failed with {len(errors)} error(s)")
+        raise DataValidationError(
+            f"Validation failed with {len(errors)} error(s): "
+            + "; ".join(errors)
+        )
 
     logger.info("Validation PASSED: %d rows, %d columns, all checks satisfied", len(df), df.shape[1])
     return df

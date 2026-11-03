@@ -1,11 +1,19 @@
+"""HTTP server for the containerized Iris classifier.
 
-"""HTTP server for the containerized Iris classifier. Minimal HTTP serving script for the containerized model, using Python's built-in http.server to avoid any additional dependency    for this container-focused experiment """
+Minimal HTTP serving script for the containerized model, using Python's
+built-in http.server to avoid any additional dependency for this
+container-focused experiment.
+"""
+
 import json
 from http.server import BaseHTTPRequestHandler, HTTPServer
+
 import joblib
 import numpy as np
+
 MODEL_PATH = "models/final_model.joblib"
 ENCODER_PATH = "models/label_encoder.joblib"
+
 FEATURE_ORDER = [
     "sepal length (cm)",
     "sepal width (cm)",
@@ -15,8 +23,11 @@ FEATURE_ORDER = [
     "petal_area",
     "sepal_to_petal_length_ratio",
 ]
+
 model = joblib.load(MODEL_PATH)
 label_encoder = joblib.load(ENCODER_PATH)
+
+
 class PredictionHandler(BaseHTTPRequestHandler):
     def _respond(self, status, payload):
         response = json.dumps(payload).encode("utf-8")
@@ -25,11 +36,13 @@ class PredictionHandler(BaseHTTPRequestHandler):
         self.send_header("Content-Length", str(len(response)))
         self.end_headers()
         self.wfile.write(response)
+
     def do_GET(self):
         if self.path == "/health":
             self._respond(200, {"status": "healthy"})
         else:
             self._respond(404, {"error": "not found"})
+
     def do_POST(self):
         if self.path != "/predict":
             self._respond(404, {"error": "not found"})
@@ -53,10 +66,9 @@ class PredictionHandler(BaseHTTPRequestHandler):
         except (json.JSONDecodeError, ValueError, TypeError):
             self._respond(400, {"error": "Invalid JSON or feature values"})
             return
+
         prediction_index = model.predict(features)[0]
-        prediction = label_encoder.inverse_transform(
-            [prediction_index]
-        )[0]
+        prediction = label_encoder.inverse_transform([prediction_index])[0]
         probabilities = model.predict_proba(features)[0].tolist()
         self._respond(
             200,
@@ -65,6 +77,8 @@ class PredictionHandler(BaseHTTPRequestHandler):
                 "probabilities": probabilities,
             },
         )
+
+
 if __name__ == "__main__":
     server = HTTPServer(("0.0.0.0", 8000), PredictionHandler)
     print("Iris server listening on port 8000")
